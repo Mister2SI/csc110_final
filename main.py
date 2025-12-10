@@ -14,10 +14,10 @@ pygame.init()
 pygame.mixer.init()
 
 # Program configuration
-BTN_W, BTN_H = 300, 100
+BTN_W, BTN_H = 200, 100
 BTN_MARGIN = 10
 WINDOW_WIDTH = BTN_W*5 + BTN_MARGIN*6
-WINDOW_HEIGHT = BTN_H*2
+WINDOW_HEIGHT = BTN_H*3 + BTN_MARGIN*4
 BG = (30, 30, 30)
 
 # Create the screen
@@ -25,8 +25,8 @@ screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("Guitar Chord Soundboard")
 font = pygame.font.SysFont(None, 28)
 
-# The default directory for sounds - the 12-string acoustic
-samples_dir = "samples/acoustic_12"
+# The default directory for sounds - the 6-string acoustic
+samples_dir = "samples/acoustic_6"
 
 # Button class
 class Button:
@@ -50,6 +50,9 @@ class Button:
         text_rect = text.get_rect(center=self.rect.center)
         surface.blit(text, text_rect)       # Draw
 
+# Add keys to bind the buttons to
+button_keys = ["q", "w", "e", "r", "t"]
+
 # Function to load the sounds from samples/ and create their buttons
 def load_buttons():
     buttons = []    # Create buttons
@@ -64,12 +67,12 @@ def load_buttons():
 
         # Grid layout: 5 per row
         col = idx % 5
-        row = idx // 5
+        row = (idx // 5) + 1    # Skip a row to allow for tone chooser
         x = BTN_MARGIN + col * (BTN_W + BTN_MARGIN)
         y = BTN_MARGIN + row * (BTN_H + BTN_MARGIN)
 
         # Create the button
-        btn = Button(x, y, BTN_W, BTN_H, None, label, sound)
+        btn = Button(x, y, BTN_W, BTN_H, button_keys[idx], label, sound)
         buttons.append(btn)
 
     print(files) # DBG print
@@ -78,28 +81,28 @@ def load_buttons():
 buttons = load_buttons()
 running = True
 while running:
+    # Get the EventList
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-        if event.type == pygame.KEYDOWN:
-            # Exit on pressing <Esc>
-            if event.key == pygame.K_ESCAPE:
+        match event.type:
+            case pygame.QUIT:
                 running = False
-            # Reload buttons upon pressing backspace
-            if event.key == pygame.K_BACKSPACE:
-                buttons = load_buttons()
-            # Activate a button if the pressed key is its assigned value
-            keyname = pygame.key.name(event.key)
-            for b in buttons:
-                if b.keyname == keyname:
-                    b.pressed = True
 
-        if event.type == pygame.KEYUP:
-            keyname = pygame.key.name(event.key)
-            for b in buttons:
-                if b.keyname == keyname:
-                    b.pressed = False
+            case pygame.KEYDOWN:
+                keyname = pygame.key.name(event.key)
+                # Exit on pressing <Esc>
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+                # Activate a button if the pressed key is its assigned value
+                for b in buttons:
+                    if b.keyname == keyname:
+                        b.pressed = True
+
+            case pygame.KEYUP:
+                keyname = pygame.key.name(event.key)
+                # Unpress buttons if their assigned key is released
+                for b in buttons:
+                    if b.keyname == keyname:
+                        b.pressed = False
 
     # Drawing
     screen.fill((20, 20, 20))
