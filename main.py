@@ -11,7 +11,9 @@ import pygame
 import os
 
 pygame.init()
-pygame.mixer.init(channels=16) # Init with 16 channels so all samples can play at once
+
+# TODO: why still only 8 samples at once?
+pygame.mixer.init(channels=32) # Init with 32 channels, this SHOULD allow 16 stereo samples to play at once
 
 # Program configuration
 BTN_W, BTN_H = 200, 100
@@ -27,6 +29,9 @@ font = pygame.font.SysFont(None, 28)
 
 # The default directory for sounds - the 6-string acoustic
 samples_dir = "samples/acoustic_6"
+
+# Whether to sustain or stop sounds on keyup
+sustain = False
 
 # Button class
 class Button:
@@ -45,7 +50,7 @@ class Button:
 
     def release(self):
         self.pressed = False
-        self.sound.stop()
+        if not sustain: self.sound.stop()
 
     def draw(self, surface):
         # Draw the colored rectangle
@@ -100,6 +105,9 @@ while running:
                 # Exit on pressing <Esc>
                 if event.key == pygame.K_ESCAPE:
                     running = False
+                # Sustain on on pressing space
+                if event.key == pygame.K_SPACE:
+                    sustain = True
                 # Activate a button if the pressed key is its assigned value
                 for b in buttons:
                     if b.keyname == keyname:
@@ -107,6 +115,8 @@ while running:
 
             case pygame.KEYUP:
                 keyname = pygame.key.name(event.key)
+                if event.key == pygame.K_SPACE:
+                    sustain = False
                 # Unpress buttons if their assigned key is released
                 for b in buttons:
                     if b.keyname == keyname:
