@@ -11,7 +11,7 @@ import pygame
 import os
 
 pygame.init()
-pygame.mixer.init()
+pygame.mixer.init(channels=16) # Init with 16 channels so all samples can play at once
 
 # Program configuration
 BTN_W, BTN_H = 200, 100
@@ -38,6 +38,14 @@ class Button:
         self.pressed = False
         self.color_normal = (60, 60, 60)
         self.color_pressed = (0, 180, 0)
+
+    def press(self):
+        self.pressed = True
+        self.sound.play()
+
+    def release(self):
+        self.pressed = False
+        self.sound.stop()
 
     def draw(self, surface):
         # Draw the colored rectangle
@@ -95,14 +103,14 @@ while running:
                 # Activate a button if the pressed key is its assigned value
                 for b in buttons:
                     if b.keyname == keyname:
-                        b.pressed = True
+                        b.press()
 
             case pygame.KEYUP:
                 keyname = pygame.key.name(event.key)
                 # Unpress buttons if their assigned key is released
                 for b in buttons:
                     if b.keyname == keyname:
-                        b.pressed = False
+                        b.release()
 
     # Drawing
     screen.fill((20, 20, 20))
