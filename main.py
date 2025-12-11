@@ -95,6 +95,7 @@ def load_buttons():
     return buttons
 
 # Function to draw labels
+keybinding_names = ["Q", "W", "E", "R", "T"]
 subtitle_font = pygame.font.SysFont(None, 24)
 title_font = pygame.font.SysFont(None, 36)
 def draw_labels(surface):
@@ -118,6 +119,11 @@ def draw_labels(surface):
     tone_text = title_font.render(tone_name, True, (255, 255, 255))
     tone_rect = tone_text.get_rect(center=(WINDOW_WIDTH/2, 70))
     surface.blit(tone_text, tone_rect)
+
+    for i in range(5):
+        text = subtitle_font.render(keybinding_names[i], True, (200, 200, 200))
+        rect = text.get_rect(center=( (i*BTN_W + BTN_MARGIN + i*BTN_MARGIN)+(BTN_W/2), BTN_MARGIN+2*(BTN_H+BTN_MARGIN)+30 ))
+        surface.blit(text, rect)
     
 
 buttons = load_buttons()
